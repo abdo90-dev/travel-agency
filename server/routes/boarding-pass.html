@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f5f7fa; padding: 40px; }
+      .ticket { background: #fff; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.1); overflow: hidden; width: 700px; margin: auto; }
+      .header { background: linear-gradient(90deg, #1e3a8a, #2563eb); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+      .header h1 { font-size: 22px; margin: 0; }
+      .details { padding: 30px; }
+      .row { display: flex; justify-content: space-between; margin-bottom: 12px; }
+      .label { font-weight: bold; color: #444; font-size: 14px; }
+      .value { font-size: 15px; }
+      .flight { text-align: center; margin: 25px 0; font-size: 18px; font-weight: bold; color: #1e3a8a; }
+      .divider { border-top: 1px dashed #ccc; margin: 25px 0; }
+      .qr { text-align: center; padding: 20px; }
+      .footer { background: #f1f5f9; text-align: center; padding: 10px; font-size: 12px; color: #666; }
+    </style>
+  </head>
+  <body>
+    <div class="ticket">
+      <div class="header">
+        <h1>SkyTravel Boarding Pass</h1>
+      </div>
+      <div class="details">
+        <div class="row"><span class="label">Passenger:</span><span class="value">{{PASSENGER_NAME}}</span></div>
+        <div class="row"><span class="label">Booking ID:</span><span class="value">{{BOOKING_ID}}</span></div>
+        <div class="row"><span class="label">Flight:</span><span class="value">{{FLIGHT_NUMBER}}</span></div>
+        <div class="row"><span class="label">Seat:</span><span class="value">{{SEAT}}</span></div>
+        <div class="divider"></div>
+        <div class="flight">{{ORIGIN}} ✈ {{DESTINATION}}</div>
+        <div class="row"><span class="label">Departure:</span><span class="value">{{DEPARTURE}}</span></div>
+        <div class="row"><span class="label">Arrival:</span><span class="value">{{ARRIVAL}}</span></div>
+        <div class="row"><span class="label">Gate:</span><span class="value">{{GATE}}</span></div>
+        <div class="row"><span class="label">Boarding Group:</span><span class="value">{{GROUP}}</span></div>
+      </div>
+      <div class="qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{BOOKING_ID}}&size=150x150" />
+        <p>Scan this code at boarding gate</p>
+      </div>
+      <div class="footer">This boarding pass is electronic. Arrive 2h before departure.</div>
+    </div>
+  </body>
+</html>
