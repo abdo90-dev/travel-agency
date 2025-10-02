@@ -14,6 +14,8 @@ let transporter = nodemailer.createTransport({
 
 
 
+
+
 const generateBookingPDF = (booking) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 40 });
