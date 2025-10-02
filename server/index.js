@@ -36,7 +36,7 @@ app.get('/api/db-test', async (req, res) => {
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] // Replace with your production domain
+    ? ['https://travel-agency-iota-six.vercel.app'] // Replace with your production domain
     : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true
 }));
