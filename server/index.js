@@ -35,8 +35,8 @@ app.get('/api/db-test', async (req, res) => {
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000','https://travel-agency-iota-six.vercel.app'],
-  credentials: true
+  origin: '*',
+  credentials: false
 }));
 
 app.use(express.json({ limit: '10mb' }));
