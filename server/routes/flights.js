@@ -4,25 +4,25 @@ import amadeusPkg from 'amadeus';
 
 const router = express.Router();
 
-// Load airports.json safely
+// Load airports.json for comprehensive city search
 const airports = JSON.parse(
   readFileSync(new URL('./airports.json', import.meta.url))
 );
 
-// Amadeus client (still used for flights)
+// Amadeus client (for flight search)
 const amadeus = new amadeusPkg({
   clientId: 'q3lnVxnPiKNiUkflpHlFotn5CiC8n3As',
   clientSecret: 'e5UR58GBCEPNauFS',
 });
 
-// ✅ Airport autocomplete using local JSON
+// ✅ Airport autocomplete using local JSON (better for city search)
 router.get('/airports/search', (req, res) => {
   const { q } = req.query;
   if (!q) return res.json([]);
 
   const search = q.toString().toLowerCase();
 
-  // ✅ Convert to array if needed
+  // Convert to array if needed
   const airportArray = Array.isArray(airports) ? airports : Object.values(airports);
 
   const results = airportArray
@@ -38,10 +38,12 @@ router.get('/airports/search', (req, res) => {
       name: a.name,
       country: a.country
     }));
+  
   res.json(results);
 });
 
 let cachedFlights = [];
+
 // ✅ Flight search with Amadeus
 router.get('/search', async (req, res) => {
   try {
@@ -121,6 +123,5 @@ router.get('/:id', (req, res) => {
     res.status(500).json({ error: 'Failed to fetch flight details' });
   }
 });
-
 
 export default router;

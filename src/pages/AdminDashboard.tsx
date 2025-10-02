@@ -40,7 +40,22 @@ interface AdminStats {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [stats, setStats] = useState<AdminStats>({
+  totalBookings: 0,
+  totalRevenue: 0,
+  currency: "EUR",
+  bookingsToday: 0,
+  revenueToday: 0,
+  bookingsByStatus: {
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+  },
+  popularDestinations: [],
+  monthlyRevenue: [],
+  recentBookings: [],
+});
+
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -178,7 +193,7 @@ export default function AdminDashboard() {
               Destinations populaires
             </h3>
             <div className="space-y-4">
-              {stats.popularDestinations.map((destination, index) => (
+              {stats?.popularDestinations?.map((destination, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div>
                     <div className="font-medium text-gray-900">{destination.destination}</div>
@@ -203,7 +218,7 @@ export default function AdminDashboard() {
               Revenus mensuels
             </h3>
             <div className="space-y-3">
-              {stats.monthlyRevenue.map((month, index) => {
+              {stats?.monthlyRevenue?.map((month, index) => {
                 const maxRevenue = Math.max(...stats.monthlyRevenue.map(m => m.revenue));
                 const percentage = (month.revenue / maxRevenue) * 100;
                 
@@ -248,7 +263,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {stats.recentBookings.map((booking) => (
+                {stats?.recentBookings?.map((booking) => (
                   <tr key={booking.id} className="border-b border-gray-100">
                     <td className="py-4 text-sm font-medium text-gray-900">
                       {booking.id}

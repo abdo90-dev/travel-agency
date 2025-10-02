@@ -1,67 +1,76 @@
 import express from 'express';
 import { requireRole } from '../middleware/auth.js';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
 // Apply admin check to all routes
-router.use(requireRole);
+router.use(requireRole(['admin']));
 
 /**
  * GET /api/admin/stats
  * Get admin dashboard statistics
  */
-router.get('/stats', (req, res) => {
+router.get('/stats', async (req, res) => {
+  console.log("test");
   try {
-    const mockStats = {
-      totalBookings: 1247,
-      totalRevenue: 284500,
-      currency: 'EUR',
-      bookingsToday: 23,
-      revenueToday: 5680,
-      bookingsByStatus: {
-        confirmed: 1050,
-        pending: 97,
-        cancelled: 100
-      },
-      popularDestinations: [
-        { destination: 'Paris', bookings: 345, revenue: 87500 },
-        { destination: 'Nice', bookings: 234, revenue: 58900 },
-        { destination: 'Lyon', bookings: 198, revenue: 49600 },
-        { destination: 'Marseille', bookings: 156, revenue: 39200 }
-      ],
-      monthlyRevenue: [
-        { month: 'Jan', revenue: 45000 },
-        { month: 'Feb', revenue: 52000 },
-        { month: 'Mar', revenue: 48000 },
-        { month: 'Apr', revenue: 55000 },
-        { month: 'May', revenue: 62000 },
-        { month: 'Jun', revenue: 58000 }
-      ],
-      recentBookings: [
-        {
-          id: 'BK001',
-          customer: 'John Doe',
-          destination: 'Paris',
-          amount: 560,
-          status: 'confirmed',
-          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'BK002',
-          customer: 'Jane Smith',
-          destination: 'Nice',
-          amount: 340,
-          status: 'pending',
-          date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
-        }
-      ]
-    };
+    // Total bookings
+    const totalBookings = await prisma.booking.count();
+console.log("test");
 
-    res.json(mockStats);
+    // Total revenue
+    const revenueAgg = await prisma.payment.aggregate({
+      _sum: { amount: true }
+    });
+
+    // Bookings today
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const bookingsToday = await prisma.booking.count({
+      where: {
+        created_at: { gte: today }
+      }
+    });
+
+    const revenueTodayAgg = await prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: {
+        created_at: { gte: today }
+      }
+    });
+
+    // Bookings by status
+    const bookingsByStatus = await prisma.booking.groupBy({
+      by: ['status'],
+      _count: { status: true }
+    });
+
+    // Popular destinations (example: group by destination city)
+    const popularDestinations = await prisma.booking.groupBy({
+      by: ['destination'],
+      _count: { destination: true },
+      _sum: { total_price: true },
+      orderBy: { _count: { destination: 'desc' } },
+      take: 5
+    });
+
+    res.json({
+      totalBookings,
+      totalRevenue: revenueAgg._sum.amount || 0,
+      currency: 'EUR',
+      bookingsToday,
+      revenueToday: revenueTodayAgg._sum.amount || 0,
+      bookingsByStatus,
+      popularDestinations
+    });
   } catch (error) {
+    console.error('❌ Error fetching stats:', error);
     res.status(500).json({ error: 'Failed to fetch admin statistics' });
   }
 });
+
 
 /**
  * GET /api/admin/bookings

@@ -28,11 +28,18 @@ model Booking {
   margin_applied Float
   created_at     DateTime  @default(now())
   updated_at     DateTime  @default(now())
+
+  // ✅ Add these new fields
+  origin         String?
+  destination    String?
+
   user           User      @relation(fields: [user_id], references: [id])
   passengers     Passenger[]
   payments       Payment[]
   invoices       Invoice[]
 }
+
+
 
 model Passenger {
   id              Int       @id @default(autoincrement())

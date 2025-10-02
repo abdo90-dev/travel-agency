@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
 console.log(userForToken);
 
     const token = generateToken(userForToken);
-
+    console.log(token);
     res.json({
       token,
       user: {
