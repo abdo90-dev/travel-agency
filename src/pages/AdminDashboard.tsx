@@ -63,15 +63,31 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/admin/stats', {
+        const response = await fetch('http://localhost:5000/api/admin/stats', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-
+        console.log(response);
+        
         if (response.ok) {
           const data = await response.json();
-          setStats(data);
+            const transformed = {
+    ...data,
+    bookingsByStatus: {
+      confirmed: data.bookingsByStatus.find((b: { status: string; }) => b.status === "confirmed")?._count.status ?? 0,
+      pending: data.bookingsByStatus.find((b: { status: string; }) => b.status === "pending")?._count.status ?? 0,
+      cancelled: data.bookingsByStatus.find((b: { status: string; }) => b.status === "cancelled")?._count.status ?? 0,
+    },
+    popularDestinations: data.popularDestinations.map((d: any) => ({
+      destination: d.destination ?? "Inconnu",
+      bookings: d._count?.destination ?? 0,
+      revenue: d._sum?.total_price ?? 0,
+    })),
+    monthlyRevenue: data.monthlyRevenue ?? [], // add safe fallback
+    recentBookings: data.recentBookings ?? [],
+  };
+          setStats(transformed);
         }
       } catch (error) {
         console.error('Failed to fetch admin stats:', error);

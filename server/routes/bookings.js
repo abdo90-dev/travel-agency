@@ -30,43 +30,70 @@ router.get("/", authenticateToken, async (req, res) => {
 
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    const { booking_type, provider, provider_ref, total_price, margin_applied, passengers } = req.body;
+    const {
+      booking_type,
+      provider,
+      provider_ref,
+      total_price,
+      margin_applied,
+      passengers,
+      airline,
+      flight_number,
+      origin_code,
+      origin_city,
+      destination_code,
+      destination_city,
+      departure_time,
+      arrival_time,
+      duration,
+      extras
+    } = req.body;
+
     if (!booking_type || !total_price) {
       return res.status(400).json({ error: "Booking type and total price are required" });
     }
 
-const newBooking = await prisma.booking.create({
-  data: {
-    user_id: Number(req.user.id),
-    booking_type,
-    provider,
-    provider_ref,
-    total_price,
-    margin_applied,
-    status: "pending",
-    passengers: {
-      create: Array.isArray(passengers)
-        ? passengers.map(p => ({
-            first_name: p.firstName,
-            last_name: p.lastName,
-            email: p.email || '',
-            phone: p.phone || '',
-            passport_number: p.passportNumber || null,
-            birth_date: p.birthDate ? new Date(p.birthDate) : null,
-            seat_choice: p.seatChoice || null,
-            baggage_option: p.baggageOption || null,
-            meal_option: p.mealOption || null,
-          }))
-        : []
-    }
-  },
-  include: { passengers: true },
-});
+    // 1. Create booking in DB
+    const newBooking = await prisma.booking.create({
+      data: {
+        user_id: Number(req.user.id),
+        booking_type,
+        provider,
+        provider_ref,
+        total_price,
+        margin_applied,
+        airline,
+        flight_number,
+        origin_code,
+        origin_city,
+        destination_code,
+        destination_city,
+        departure_time: departure_time ? new Date(departure_time) : null,
+        arrival_time: arrival_time ? new Date(arrival_time) : null,
+        duration,
+        extras, // save JSON { insurance: true, priority: false, meal: true }
+        passengers: {
+          create: Array.isArray(passengers)
+            ? passengers.map(p => ({
+                first_name: p.firstName,
+                last_name: p.lastName,
+                email: p.email || '',
+                phone: p.phone || '',
+                passport_number: p.passportNumber || null,
+                birth_date: p.birthDate ? new Date(p.birthDate) : null,
+                seat_choice: p.seatChoice || null,
+                baggage_option: p.baggageOption || null,
+                meal_option: p.mealOption || null,
+              }))
+            : []
+        }
+      },
+      include: { passengers: true }
+    });
 
-
-  // 2. Create Stripe PaymentIntent
+    // 2. Create Stripe PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total_price * 100), // Stripe expects cents
+      amount: Math.round(total_price * 100),
       currency: "eur",
       payment_method_types: ["card"],
       metadata: { bookingId: newBooking.id.toString() },
@@ -84,14 +111,16 @@ const newBooking = await prisma.booking.create({
     });
 
     res.status(201).json({
-  booking: newBooking,
-  clientSecret: paymentIntent.client_secret
-});
+      booking: newBooking,
+      clientSecret: paymentIntent.client_secret
+    });
   } catch (error) {
     console.error("❌ Booking creation error:", error);
     res.status(500).json({ error: "Booking creation failed" });
   }
 });
+
+
 
 
 // ✅ Get booking details

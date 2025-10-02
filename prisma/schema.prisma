@@ -18,26 +18,32 @@ model User {
 }
 
 model Booking {
-  id             Int       @id @default(autoincrement())
-  user_id        Int
-  booking_type   String
-  provider       String?
-  provider_ref   String?
-  status         String    @default("pending")
-  total_price    Float
-  margin_applied Float
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @default(now())
-
-  // ✅ Add these new fields
-  origin         String?
-  destination    String?
-
-  user           User      @relation(fields: [user_id], references: [id])
-  passengers     Passenger[]
-  payments       Payment[]
-  invoices       Invoice[]
+  id               Int       @id @default(autoincrement())
+  user_id          Int
+  booking_type     String
+  provider         String?
+  provider_ref     String?
+  airline          String?        // ✅ add
+  flight_number    String?        // ✅ add
+  origin_code      String?        // ✅ add
+  origin_city      String?        // ✅ add
+  destination_code String?        // ✅ add
+  destination_city String?        // ✅ add
+  departure_time   DateTime?      // ✅ add
+  arrival_time     DateTime?      // ✅ add
+  duration         String?        // ✅ add
+  extras           Json?          // ✅ add
+  status           String    @default("pending")
+  total_price      Float
+  margin_applied   Float
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+  user             User      @relation(fields: [user_id], references: [id])
+  passengers       Passenger[]
+  payments         Payment[]
+  invoices         Invoice[]
 }
+
 
 
 

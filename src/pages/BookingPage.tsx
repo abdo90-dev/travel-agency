@@ -84,28 +84,33 @@ const handlePayment = async () => {
 
     const token = localStorage.getItem('token');
     
-    const res = await fetch(`http://localhost:5000/api/bookings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-body: JSON.stringify({
-  booking_type: 'flight',
-  total_price: calculateTotal(),
-  margin_applied: 0,
-  passengers: bookingData.passengers?.map(p => ({
-    firstName: p.firstName,
-    lastName: p.lastName,
-    email: p.email || '',
-    phone: p.phone || '',
-    passportNumber: p.passportNumber || null,
-    birthDate: p.birthDate || null,
+ const res = await fetch(`http://localhost:5000/api/bookings`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({
+    booking_type: 'flight',
+    provider: flight.airline,
+    provider_ref: flight.flightNumber,
+    airline: flight.airline,
+    flight_number: flight.flightNumber,
+    origin_code: flight.origin.code,
+    origin_city: flight.origin.city,
+    destination_code: flight.destination.code,
+    destination_city: flight.destination.city,
+    departure_time: flight.departure,
+    arrival_time: flight.arrival,
+    duration: flight.duration,
+    extras: bookingData.extras,
+    total_price: calculateTotal(),
+    margin_applied: 0,
+    passengers: bookingData.passengers
+  }),
+});
 
-  })) || [],
-}),
-    });
-console.log("check");
+console.log(flight);
 
    const { booking, clientSecret } = await res.json();
 setBooking(booking);

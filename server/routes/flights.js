@@ -63,6 +63,7 @@ router.get('/search', async (req, res) => {
     const flights = response.data;
     cachedFlights = response.data;
 
+      console.log(flights);
       
     if (!flights?.length) {
       return res.status(404).json({ message: 'No flights found' });
