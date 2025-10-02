@@ -104,7 +104,7 @@ const login = async (email: string, password: string): Promise<User> => {
   dispatch({ type: 'LOGIN_START' });
   
   try {
-const response = await fetch(`${API_BASE}/api/auth/login`, {
+const response = await fetch(`https://travel-agency-5qgs.vercel.app/api/auth/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email, password }),
